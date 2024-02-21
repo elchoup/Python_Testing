@@ -36,8 +36,8 @@ def showSummary():
             print(response)
             return response
         else:
-            print("L'adresse email ne correspond à aucun club")
-            return "L'adresse email ne correspond à aucun club"
+            flash("L'adresse email ne correspond à aucun club")
+            return redirect(url_for("index"))
             
     except IndexError:
         print("La liste des clubs est vide")
