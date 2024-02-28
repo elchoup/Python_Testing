@@ -1,6 +1,10 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
+MAX_BOOKING = 12
+
+
+
 
 def loadClubs(file_path="clubs.json"):
     with open(file_path) as c:
@@ -28,25 +32,16 @@ def index():
 
 @app.route("/showSummary", methods=["POST"])
 def showSummary():
-    email = request.form.get("email")
+    email = request.form["email"]
     try:
-        club = next((club for club in clubs if club["email"] == email), None)
-        if club:
-            response = render_template("welcome.html", club=club, competitions=competitions)
-            print(response)
-            return response
-        else:
-            flash("L'adresse email ne correspond à aucun club")
-            return redirect(url_for("index"))
+        club = [club for club in clubs if club["email"] == email]
+        print(club[0])
             
     except IndexError:
-        print("La liste des clubs est vide")
-        return "La liste des clubs est vide"
+        flash(f"Error: email {email} does not exist")
+        return redirect(url_for("index"))
     
-    except Exception as e:
-        print(f"Une erreur s'est produite : {e}")
-        return "Une erreur s'est produite"
-        
+    return render_template("welcome.html", club=club[0], competitions=competitions)
 
 
 @app.route("/book/<competition>/<club>")
