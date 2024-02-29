@@ -4,9 +4,9 @@ import pytest
 def test_load_competitions_valid(competitions_fixture):
     # Test when list of competitions exists
     expected_competitions = competitions_fixture["competitions"]
-    loaded_competions = loadCompetitions()
+    loaded_competitions = loadCompetitions()
     # Assert the response is as expected
-    assert loaded_competions == expected_competitions
+    assert loaded_competitions == expected_competitions
     
 def test_load_compettions_empty():
     # Assert FileNotFoundError raises if the file path is not existing

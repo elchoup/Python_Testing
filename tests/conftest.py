@@ -16,7 +16,7 @@ def club_fixture():
         },
         {   "name":"She Lifts",
             "email": "kate@shelifts.co.uk",
-            "points":"12"
+            "points":"13"
         }
         ]
     }
@@ -37,6 +37,11 @@ def competitions_fixture():
                 "name": "Fall Classic",
                 "date": "2020-10-22 13:30:00",
                 "numberOfPlaces": "13"
+            },
+            {
+            "name": "Test",
+            "date":"2024-12-25",
+            "numberOfPlaces": "3"
             }
         ]
     }

@@ -12,6 +12,11 @@ class InvalidInputError(Exception):
 class ClubPointsError(Exception):
     pass
 
+class CompetitionPlacesError(Exception):
+    pass
+
+class MaxBookingError(Exception):
+    pass
 
 
 
@@ -59,7 +64,7 @@ def book(competition, club):
     foundCompetition = [c for c in competitions if c["name"] == competition][0]
     if foundClub and foundCompetition:
         return render_template(
-            "booking.html", club=foundClub, competition=foundCompetition
+            "booking.html", club=foundClub, competition=foundCompetition, MAX_BOOKING=MAX_BOOKING
         )
     else:
         flash("Something went wrong-please try again")
@@ -89,6 +94,15 @@ def validate_points_club_available(club, place_required):
     if place_required > int(club["points"]):
         raise ClubPointsError("Not enought club points left")
     
+def validate_competition_points_available(competition, place_required):
+    if place_required > int(competition["numberOfPlaces"]):
+        raise CompetitionPlacesError("Not enought competition places left")
+    
+def validate_book_12_max(place_required):
+    if place_required > MAX_BOOKING:
+        raise MaxBookingError("You can book 12 places maximum")
+    
+    
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
     try:
@@ -105,6 +119,8 @@ def purchasePlaces():
         
         validate_booking_number_input(place_required)
         validate_points_club_available(club, place_required)
+        validate_competition_points_available(competition, place_required)
+        validate_book_12_max(place_required)
         
         competition["numberOfPlaces"] = int(competition["numberOfPlaces"]) - place_required
         club["points"] = int(club["points"]) - place_required
@@ -119,6 +135,14 @@ def purchasePlaces():
         return redirect(url_for("book", competition=competition_name, club=club_name))
         
     except ClubPointsError as e:
+        flash(str(e))
+        return redirect(url_for("book", competition=competition_name, club=club_name))
+    
+    except CompetitionPlacesError as e:
+        flash(str(e))
+        return redirect(url_for("book", competition=competition_name, club=club_name))
+    
+    except MaxBookingError as e:
         flash(str(e))
         return redirect(url_for("book", competition=competition_name, club=club_name))
         

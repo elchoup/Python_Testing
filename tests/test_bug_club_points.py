@@ -8,11 +8,11 @@ def client():
 
 def test_enough_club_points(client):
     competition_name = "Spring Festival"
-    club_name = "Simply Lift"
+    club_name = "She Lifts"
     place_required = 10
     
     response = client.post("/purchasePlaces", data={"competition": competition_name, "club": club_name, "places": place_required}, follow_redirects=True)
-    print(response)
+    print(response.data)
     
     assert response.status_code == 200
     assert b"Great-booking complete!" in response.data
