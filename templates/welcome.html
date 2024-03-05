@@ -30,6 +30,15 @@
         <hr />
         {% endfor %}
     </ul>
+    <h3>Clubs</h3>
+    <ul>
+        {% for club in clubs %}
+        <li>
+            {{club['name']}}<br />
+            Points available : {{club['points']}}
+        </li>
+        <hr />
+        {% endfor %}
     {%endwith%}
 
 </body>
