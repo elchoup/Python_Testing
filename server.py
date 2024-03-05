@@ -1,5 +1,6 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
+from datetime import datetime
 
 MAX_BOOKING = 12
 
@@ -16,6 +17,9 @@ class CompetitionPlacesError(Exception):
     pass
 
 class MaxBookingError(Exception):
+    pass
+
+class DateError(Exception):
     pass
 
 
@@ -70,17 +74,17 @@ def book(competition, club):
         flash("Something went wrong-please try again")
         return render_template("welcome.html", club=club, competitions=competitions)
 
-def find_competition(competition_name):
-    competition = [c for c in competitions if c["name"] == competition_name][0]
+def find_competition(competition_name, competitions):
+    competition = [c for c in competitions if c["name"] == competition_name]
     if not competition:
         raise BookingError("Competition not found or invalid")
-    return competition
+    return competition[0]
 
-def find_club(club_name):
-    club = [c for c in clubs if c["name"] == club_name][0]
+def find_club(club_name, clubs):
+    club = [c for c in clubs if c["name"] == club_name]
     if not club:
         raise BookingError("Club not found or invalid")
-    return club
+    return club[0]
 
 def validate_booking_input(place_required_str):
     if not place_required_str:
@@ -102,21 +106,29 @@ def validate_book_12_max(place_required):
     if place_required > MAX_BOOKING:
         raise MaxBookingError("You can book 12 places maximum")
     
+def validate_datetime(date):
+    competition_date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+    if competition_date <= datetime.now():
+        raise DateError("You can't book places from a passed competition")
+    
     
 @app.route("/purchasePlaces", methods=["POST"])
 def purchasePlaces():
+
+    competition_name = request.form["competition"]  
+    club_name = request.form["club"]
+    place_required_str = request.form["places"]
     try:
-        competition_name = request.form["competition"]  
-        club_name = request.form["club"]
-        place_required_str = request.form["places"]
+        competition = find_competition(competition_name, competitions)
+        club = find_club(club_name, clubs)
+        date = competition["date"]
         
-        competition = find_competition(competition_name)
-        club = find_club(club_name)
-        
+    
         validate_booking_input(place_required_str)
         
         place_required = int(request.form["places"])
         
+        validate_datetime(date)
         validate_booking_number_input(place_required)
         validate_points_club_available(club, place_required)
         validate_competition_points_available(competition, place_required)
@@ -125,6 +137,10 @@ def purchasePlaces():
         competition["numberOfPlaces"] = int(competition["numberOfPlaces"]) - place_required
         club["points"] = int(club["points"]) - place_required
         flash("Great-booking complete!")
+        
+    except DateError as e:
+        flash(str(e))
+        return redirect(url_for("book", competition=competition_name, club=club_name))
     
     except BookingError as e:
         flash(str(e))
