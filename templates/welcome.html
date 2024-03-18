@@ -24,21 +24,15 @@
             Date: {{comp['date']}}</br>
             Number of Places: {{comp['numberOfPlaces']}}
             {%if comp['numberOfPlaces']|int >0%}
+            {% set competition_date = datetime.strptime(comp["date"], '%Y-%m-%d %H:%M:%S') %}
+            {% if competition_date >= datetime.now() %}
             <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
+            {%endif%}
             {%endif%}
         </li>
         <hr />
         {% endfor %}
     </ul>
-    <h3>Clubs</h3>
-    <ul>
-        {% for club in clubs %}
-        <li>
-            {{club['name']}}<br />
-            Points available : {{club['points']}}
-        </li>
-        <hr />
-        {% endfor %}
     {%endwith%}
 
 </body>
